@@ -10,7 +10,7 @@ import java.sql.*;
 
 public class Notes{
    static JFrame home,note_home,main_note_page;
-   static JButton plus,submit,close_page;
+   static JButton plus,submit,close_page,edit_page;
    static JLabel subject,date_note,f_message,main_note_lb;
    static JTextField subj_data;
    static JTextArea notes_data;
@@ -23,7 +23,8 @@ public class Notes{
    static String f_subject,f_date,f_notes,message; 
    static  int count=0,top_gape=0,id=0,f_id,count_id=1,main_id;
    static JPanel pan1,pan2;
- 
+   static JTextArea msg4;
+   static int id_nt;
    static void main_home()
    {
     
@@ -106,8 +107,8 @@ public class Notes{
                    subj_data.setText("");notes_data.setText("");
                    note_home.setVisible(false);
                     main_home();
-               } catch (Exception ee) {
-                // TODO: handle exception
+               } catch (Exception ef) {
+                 System.out.println(ef);
                }
                 
             }
@@ -162,7 +163,7 @@ public class Notes{
                              
                              
                        } catch (Exception ee) {
-                        // TODO: handle exception
+                         System.out.println(ee);
                        }
                         
                     }
@@ -188,7 +189,7 @@ public class Notes{
    {
         try {
             
-                int id_nt=id;
+                id_nt=id;
               
                 
                 
@@ -200,7 +201,7 @@ public class Notes{
                 String fetch_rec="Select * from note_file where id="+id_nt+"";                
                 Statement sm=con.createStatement();
                 ResultSet rs=sm.executeQuery(fetch_rec);
-                 String msg1,msg2,msg3;                 
+                String msg1,msg2,msg3;                 
                 while(rs.next())
                 {
                     msg1=rs.getString("subject_note");
@@ -209,34 +210,63 @@ public class Notes{
                     msg3=rs.getString("note_data");
                     main_note_page=new JFrame(msg1);
                     main_note_page.setBounds(200, 100, 500, 600);
-                    main_note_page.getContentPane().setBackground(frame_color);
-                    main_note_lb=new JLabel(msg3);
-                    main_note_lb.setBounds(10, 10, 460, 40);
-                  
+                    main_note_page.getContentPane().setBackground(frame_color);                    
+                    // main_note_lb=new JLabel(msg3);
+                    // main_note_lb.setBounds(10, 10, 460, 40);
+                    msg4=new JTextArea(msg3);
+                    msg4.setBounds(10, 10, 460, 400);
                    
                 }
                 close_page=new JButton("Close");
                 close_page.setBounds(350, 450, 70, 35);
                 close_page.setBackground(bt_color);
                 close_page.setForeground(Color.WHITE);
-                main_note_page.add(main_note_lb);
+
+                edit_page=new JButton("Update");
+                edit_page.setBounds(250, 450, 100, 35);
+                edit_page.setBackground(bt_color);
+                edit_page.setForeground(Color.WHITE);
+
+                main_note_page.add(msg4);main_note_page.add(edit_page);
                 main_note_page.add(close_page); 
                 
                 ActionListener mainpage=new ActionListener(){
                     public void actionPerformed(ActionEvent e)
                     { 
-                        main_note_page.setVisible(false);
                         main_home();
-                        
+                        main_note_page.setVisible(false);
                     }
                 };
                 close_page.addActionListener(mainpage); 
-                   
-               
                 main_note_page.setLayout(null);
                 main_note_page.setVisible(true);
+
+                ActionListener editdata=new ActionListener(){
+                    public void actionPerformed(ActionEvent e)
+                    { 
+                        main_note_page.setVisible(false);
+                       
+                        msg4.getText();
+                        try {
+                            Class.forName("com.mysql.cj.jdbc.Driver");
+                            Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/notes", 
+                            "root", "12345");
+                           
+                            String qry="UPDATE note_file SET note_data = '"+msg4.getText()+"' WHERE id = "+id_nt+"";
+                            Statement st=con.createStatement();
+                            st.executeUpdate(qry);
+                            main_note_page.setVisible(false);
+                            main_home();
+                
+                        } catch (Exception est) {
+                            System.out.println(est);
+                        }
+                        
+                    }
+                };
+                edit_page.addActionListener(editdata);
         } catch (Exception eee) {
-            // TODO: handle exception
+             System.out.println(eee);
         }
    }
 
